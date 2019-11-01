@@ -24,7 +24,7 @@
         "datePublished": "2018-12-24 00:00:00 \x2b0000 UTC",
         "dateModified" : "2018-12-24 00:00:00 \x2b0000 UTC",
         "url" : "http:\/\/seanops.github.io\/blog\/start\/",
-        "wordCount" : "38",
+        "wordCount" : "154",
         "keywords" : [ "Blog" ]
     }
     </script>
@@ -68,7 +68,7 @@
 
 <meta itemprop="datePublished" content="2018-12-24T00:00:00&#43;00:00" />
 <meta itemprop="dateModified" content="2018-12-24T00:00:00&#43;00:00" />
-<meta itemprop="wordCount" content="38">
+<meta itemprop="wordCount" content="154">
 
 
 
@@ -364,7 +364,33 @@
   
 
   <div id="content">
-    <p>In this post, I explain how can I deploy this website. I use hugo to help me manage the content.
+    <p>In this post, I explain how can I deploy this website. The goal is to have a mechanism if CI/CD.
+I use hugo framework for manage localy content and push it in a github repository.</p>
+
+<p>I follow this (Artem Sidorenko&rsquo;s article)[<a href="https://www.sidorenko.io/post/2018/12/hugo-on-github-pages-with-travis-ci/">https://www.sidorenko.io/post/2018/12/hugo-on-github-pages-with-travis-ci/</a>]
+which was very useful when you want to use (travis-ci)[<a href="https://travis-ci.com">https://travis-ci.com</a>] as a pipeline worker.</p>
+
+<p>Here were the steps:
+1. Install hugo on your personnal workspace</p>
+
+<pre><code class="language-bash">$ sudo apt-get install hugo 
+</code></pre>
+
+<ol>
+<li><p>Create the local repository environment</p>
+
+<pre><code class="language-bash">$ mkdir dev/website
+$ cd dev/website
+$ git init
+$ echo &quot;# My super new website&quot; &gt; README.md
+$ git add README.md
+$ git commit -m &quot;feat: first commit&quot;
+</code></pre></li>
+
+<li><p>Create two repositories in github. One for the hugo website files and the other one is for the public static content file.</p></li>
+</ol>
+
+<p>I use hugo to help me manage the content.
 I use github to host my site.
 I use travis to continuous deliver the content of my notes.</p>
 
