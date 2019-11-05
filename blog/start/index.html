@@ -24,7 +24,7 @@
         "datePublished": "2018-12-24 00:00:00 \x2b0000 UTC",
         "dateModified" : "2018-12-24 00:00:00 \x2b0000 UTC",
         "url" : "http:\/\/seanops.github.io\/blog\/start\/",
-        "wordCount" : "154",
+        "wordCount" : "368",
         "keywords" : [ "Blog" ]
     }
     </script>
@@ -68,7 +68,7 @@
 
 <meta itemprop="datePublished" content="2018-12-24T00:00:00&#43;00:00" />
 <meta itemprop="dateModified" content="2018-12-24T00:00:00&#43;00:00" />
-<meta itemprop="wordCount" content="154">
+<meta itemprop="wordCount" content="368">
 
 
 
@@ -367,16 +367,17 @@
     <p>In this post, I explain how can I deploy this website. The goal is to have a mechanism if CI/CD.
 I use hugo framework for manage localy content and push it in a github repository.</p>
 
-<p>I follow this (Artem Sidorenko&rsquo;s article)[<a href="https://www.sidorenko.io/post/2018/12/hugo-on-github-pages-with-travis-ci/">https://www.sidorenko.io/post/2018/12/hugo-on-github-pages-with-travis-ci/</a>]
-which was very useful when you want to use (travis-ci)[<a href="https://travis-ci.com">https://travis-ci.com</a>] as a pipeline worker.</p>
+<p>I follow this <a href="https://www.sidorenko.io/post/2018/12/hugo-on-github-pages-with-travis-ci/">Artem Sidorenko&rsquo;s article</a>
+which was very useful when you want to use <a href="https://travis-ci.com">travis-ci</a> as a pipeline worker.</p>
 
-<p>Here were the steps:
-1. Install hugo on your personnal workspace</p>
-
-<pre><code class="language-bash">$ sudo apt-get install hugo 
-</code></pre>
+<p>Here were the steps:</p>
 
 <ol>
+<li><p>Install hugo on your personnal workspace</p>
+
+<pre><code class="language-bash">$ sudo apt-get install hugo 
+</code></pre></li>
+
 <li><p>Create the local repository environment</p>
 
 <pre><code class="language-bash">$ mkdir dev/website
@@ -387,12 +388,68 @@ $ git add README.md
 $ git commit -m &quot;feat: first commit&quot;
 </code></pre></li>
 
-<li><p>Create two repositories in github. One for the hugo website files and the other one is for the public static content file.</p></li>
-</ol>
+<li><p>Create one repository in github for the hugo website files and the an other one for the public static content file.
+For this last repository add a generic README.md file to create the master branch. This branch will be used to automaticaly push static content by bot.</p></li>
 
-<p>I use hugo to help me manage the content.
-I use github to host my site.
-I use travis to continuous deliver the content of my notes.</p>
+<li><p>Create a robot github account. Github allows to have a machine account (cf <a href="https://help.github.com/en/github/site-policy/github-terms-of-service#b-account-terms">github terms of service</a>).
+this account will be use by travis-ci to commit on public static content repository.</p></li>
+
+<li><p>In your local repository, add remote repository references :</p>
+
+<pre><code class="language-bash">$ git add remote origin git@github.com:&lt;username&gt;/&lt;hugo_website_files_repo.git&gt;
+$ git push origin master
+</code></pre></li>
+
+<li><p>Add travis-ci file <strong>.travis.yml</strong> file and the script <strong>deploy.sh</strong> use to deploy content files.</p>
+
+<pre><code class="language-bash">cat &lt;&lt; EOF &gt; .travis.yaml
+---
+install:
+  \- wget -O /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.59.1/hugo_extended_0.59.1_Linux-64bit.deb
+  \- sudo dpkg -i /tmp/hugo.deb
+    
+script:
+  \- hugo
+    
+deploy:
+  \- provider: script
+    script: bash deploy.sh
+    skip_cleanup: true
+    on:
+      branch: master
+EOF
+</code></pre>
+
+<pre><code class="language-bash">cat &lt;&lt; EOF &gt; deploy.sh
+#!/bin/bash
+    
+set -e
+    
+echo $GITHUB_AUTH_SECRET &gt; ~/.git-credentials &amp;&amp; chmod 0600 ~/.git-credentials
+git config --global credential.helper store
+git config --global user.email &quot;&lt;machine_account&gt;@users.noreply.github.com&quot;
+git config --global user.name &quot;&lt;machine_account_name&gt;&quot;
+git config --global push.default simple
+    
+rm -rf deployment
+git clone -b master https://github.com/&lt;username&gt;/&lt;public_static_website_files_repo.git&gt; deployment
+rsync -av --delete --exclude &quot;.git&quot; public/ deployment
+cd deployment
+git add -A
+# we need the || true, as sometimes you do not have any content changes
+# and git woundn't commit and you don't want to break the CI because of that
+git commit -m &quot;rebuilding site on `date`, commit ${TRAVIS_COMMIT} and job ${TRAVIS_JOB_NUMBER}&quot; || true
+git push
+    
+cd ..
+rm -rf deployment
+EOF
+</code></pre></li>
+
+<li><p>Add job in travis-ci in logining with github authentication</p>
+
+<p><img src="travis-ci-settings.png" alt="travis-ci settings" /></p></li>
+</ol>
 
   </div>
 

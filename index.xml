@@ -18,9 +18,10 @@
       
       <guid>http://seanops.github.io/blog/start/</guid>
       <description>In this post, I explain how can I deploy this website. The goal is to have a mechanism if CI/CD. I use hugo framework for manage localy content and push it in a github repository.
-I follow this (Artem Sidorenko&amp;rsquo;s article)[https://www.sidorenko.io/post/2018/12/hugo-on-github-pages-with-travis-ci/] which was very useful when you want to use (travis-ci)[https://travis-ci.com] as a pipeline worker.
-Here were the steps: 1. Install hugo on your personnal workspace
-$ sudo apt-get install hugo   Create the local repository environment</description>
+I follow this Artem Sidorenko&amp;rsquo;s article which was very useful when you want to use travis-ci as a pipeline worker.
+Here were the steps:
+ Install hugo on your personnal workspace
+$ sudo apt-get install hugo  Create the local repository environment</description>
     </item>
     
   </channel>
